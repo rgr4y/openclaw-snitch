@@ -32,8 +32,8 @@ Then add to `openclaw.json`:
 Copy the hook directories into your workspace:
 
 ```bash
-cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/bootstrap ~/.openclaw/hooks/snitch-bootstrap
-cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/message-guard ~/.openclaw/hooks/snitch-message-guard
+cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/snitch-bootstrap ~/.openclaw/hooks/snitch-bootstrap
+cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/snitch-message-guard ~/.openclaw/hooks/snitch-message-guard
 ```
 
 Then add to `openclaw.json` hooks config:

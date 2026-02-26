@@ -6,7 +6,11 @@
 
 **Architecture:** Three-layer defense: (1) automation hook `agent:bootstrap` injects a security directive into every agent context, (2) automation hook `message:received` warns when a banned term appears in an incoming message, (3) plugin `before_tool_call` hard-blocks any tool call whose name or params match the blocklist and fires a Telegram broadcast to all allowFrom IDs. Blocklist is user-configurable with `clawhub`/`clawdhub` as defaults.
 
-**Tech Stack:** TypeScript, openclaw plugin-sdk, Node 24 native type stripping, npm publish
+**Tech Stack:** TypeScript, openclaw plugin-sdk, Node 24 native type stripping, npm publish, clawhub
+
+**Publishing targets:**
+- **npm** — delivers the plugin (`before_tool_call` hard block + Telegram). Users add to `plugins.allow`.
+- **clawhub** — delivers SKILL.md + hook files as a skill. Users copy hooks manually then install the npm package for full enforcement. Upload via clawhub.ai/upload after GitHub sign-in.
 
 ---
 
@@ -252,10 +256,10 @@ git commit -m "feat: add plugin with configurable blocklist and Telegram alerts"
 ### Task 3: Write the bootstrap hook
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/hooks/bootstrap/HOOK.md`
-- Create: `~/workspace/openclaw-snitch/hooks/bootstrap/handler.ts`
+- Create: `~/workspace/openclaw-snitch/hooks/snitch-bootstrap/HOOK.md`
+- Create: `~/workspace/openclaw-snitch/hooks/snitch-bootstrap/handler.ts`
 
-**Step 1: Write hooks/bootstrap/HOOK.md**
+**Step 1: Write hooks/snitch-bootstrap/HOOK.md**
 
 ```markdown
 ---
@@ -277,7 +281,7 @@ Injects a security directive into every agent bootstrap context prohibiting
 invocation of any skill or tool matching the configured blocklist.
 ```
 
-**Step 2: Write hooks/bootstrap/handler.ts**
+**Step 2: Write hooks/snitch-bootstrap/handler.ts**
 
 ```typescript
 // No external imports — Node 24 strips type annotations at runtime.
@@ -332,10 +336,10 @@ git commit -m "feat: add bootstrap hook for security directive injection"
 ### Task 4: Write the message-guard hook
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/hooks/message-guard/HOOK.md`
-- Create: `~/workspace/openclaw-snitch/hooks/message-guard/handler.ts`
+- Create: `~/workspace/openclaw-snitch/hooks/snitch-message-guard/HOOK.md`
+- Create: `~/workspace/openclaw-snitch/hooks/snitch-message-guard/handler.ts`
 
-**Step 1: Write hooks/message-guard/HOOK.md**
+**Step 1: Write hooks/snitch-message-guard/HOOK.md**
 
 ```markdown
 ---
@@ -357,7 +361,7 @@ Intercepts incoming messages referencing blocklisted terms and pushes
 a policy-violation notice before the agent processes the message.
 ```
 
-**Step 2: Write hooks/message-guard/handler.ts**
+**Step 2: Write hooks/snitch-message-guard/handler.ts**
 
 ```typescript
 // No external imports — Node 24 strips type annotations at runtime.
@@ -563,25 +567,32 @@ Expected:
 ./CHANGELOG.md
 ./CONTRIBUTING.md
 ./README.md
+./SKILL.md
 ./docs/plans/2026-02-25-openclaw-snitch.md
-./hooks/bootstrap/HOOK.md
-./hooks/bootstrap/handler.ts
-./hooks/message-guard/HOOK.md
-./hooks/message-guard/handler.ts
+./hooks/snitch-bootstrap/HOOK.md
+./hooks/snitch-bootstrap/handler.ts
+./hooks/snitch-message-guard/HOOK.md
+./hooks/snitch-message-guard/handler.ts
 ./openclaw.plugin.json
 ./package.json
 ./src/index.ts
 ./tsconfig.json
 ```
 
-**Step 2: Set up npm publish (when ready)**
+**Step 2: Publish to npm**
 
 ```bash
 npm login
 npm publish --access public
 ```
 
-**Step 3: Tag release**
+**Step 3: Publish to clawhub**
+
+Sign in at clawhub.ai with GitHub, then upload via https://clawhub.ai/upload.
+SKILL.md frontmatter drives the skill metadata. Hook files ship as regular skill files —
+the SKILL.md install section tells users to copy them manually after install.
+
+**Step 4: Tag release**
 
 ```bash
 git tag v1.0.0
