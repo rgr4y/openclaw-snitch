@@ -1,6 +1,6 @@
 {
   "name": "openclaw-snitch",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Configurable blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",
