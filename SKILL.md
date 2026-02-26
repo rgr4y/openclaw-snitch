@@ -65,7 +65,7 @@ Then add to `openclaw.json`:
 Lock down the plugin files after install so the agent can't self-modify:
 
 ```bash
-sudo chown -R root:root ~/.openclaw/extensions/openclaw-snitch
+chmod -R a-w ~/.openclaw/extensions/openclaw-snitch
 ```
 
 ## Configuration

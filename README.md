@@ -53,8 +53,8 @@ Then add to `openclaw.json`:
 Copy the hook directories into your workspace:
 
 ```bash
-cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/snitch-bootstrap ~/.openclaw/hooks/snitch-bootstrap
-cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/snitch-message-guard ~/.openclaw/hooks/snitch-message-guard
+cp -r ~/.openclaw/workspace/skills/openclaw-snitch/hooks/snitch-bootstrap ~/.openclaw/hooks/snitch-bootstrap
+cp -r ~/.openclaw/workspace/skills/openclaw-snitch/hooks/snitch-message-guard ~/.openclaw/hooks/snitch-message-guard
 ```
 
 Then add to `openclaw.json` hooks config:
@@ -98,7 +98,7 @@ The hooks read `SNITCH_BLOCKLIST` (comma-separated) if set, otherwise fall back 
 
 ## Security Notes
 
-- **Lock down the plugin files after install**: `sudo chown -R root:root ~/.openclaw/extensions/openclaw-snitch` so the agent can't self-modify
+- **Lock down the plugin files after install**: `chmod -R a-w ~/.openclaw/workspace/skills/openclaw-snitch` so the agent can't self-modify
 - **The bootstrap and message hooks are the most tamper-resistant layers** — they live in `~/.openclaw/hooks/` which loads unconditionally without a trust model
 - The plugin layer requires `plugins.allow` — if an agent edits `openclaw.json` and removes it, the hooks remain active as a fallback
 
