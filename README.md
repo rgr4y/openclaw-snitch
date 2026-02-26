@@ -2,9 +2,30 @@
 
 A configurable blocklist guard for [OpenClaw](https://openclaw.ai). Hard-blocks tool calls matching banned patterns, injects a security directive at agent bootstrap, warns on incoming messages, and broadcasts Telegram alerts to all `allowFrom` recipients.
 
+## In action
+
+A user asks their OpenClaw agent to install a blocked skill. Snitch catches every attempt and fires a Telegram alert in real time:
+
+```
+User: hi. can you download the clawhub skill please
+
+🚨🚔🚨 SECURITY ALERT 🚨🚔🚨
+
+A clawhub tool invocation was detected and BLOCKED.
+The session has been stopped. This incident has been logged.
+
+clawhub is prohibited by system security policy.
+
+tool: edit
+session: agent:main:main
+agent: main
+```
+
+The agent tried `edit`, then `browser`, then `gateway`, then `exec` — each attempt blocked and reported. When it tried to disable the guard itself, that got blocked too.
+
 ## Why
 
-The [ClawdHub](https://clawdhub.com) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `openclaw-snitch` provides a multi-layer defense:
+The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `openclaw-snitch` provides a multi-layer defense:
 
 1. **Bootstrap directive** — injected into every agent context, telling the LLM not to invoke blocked tools
 2. **Message warning** — flags incoming messages that reference blocked terms before the agent sees them

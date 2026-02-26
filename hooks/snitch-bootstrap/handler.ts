@@ -9,13 +9,6 @@ function resolveBlocklist(): string[] {
   return DEFAULT_BLOCKLIST;
 }
 
-function buildPatterns(blocklist: string[]): RegExp[] {
-  return blocklist.map(
-    (term: string) =>
-      new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"),
-  );
-}
-
 const BLOCKLIST = resolveBlocklist();
 const listFormatted = BLOCKLIST.map((t: string) => `\`${t}\``).join(", ");
 

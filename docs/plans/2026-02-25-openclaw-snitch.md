@@ -434,7 +434,7 @@ A configurable blocklist guard for [OpenClaw](https://openclaw.ai). Hard-blocks 
 
 ## Why
 
-The [ClawdHub](https://clawdhub.com) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `openclaw-snitch` provides a multi-layer defense:
+The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `openclaw-snitch` provides a multi-layer defense:
 
 1. **Bootstrap directive** — injected into every agent context, telling the LLM not to invoke blocked tools
 2. **Message warning** — flags incoming messages that reference blocked terms before the agent sees them
