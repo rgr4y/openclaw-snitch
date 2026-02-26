@@ -1,6 +1,6 @@
 {
   "name": "openclaw-snitch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Configurable blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",
@@ -17,9 +17,17 @@
     "@typescript-eslint/parser": "^8",
     "eslint": "^9"
   },
-  "keywords": ["openclaw", "security", "plugin", "blocklist", "guard"],
+  "keywords": [
+    "openclaw",
+    "security",
+    "plugin",
+    "blocklist",
+    "guard"
+  ],
   "openclaw": {
-    "extensions": ["./src/index.ts"]
+    "extensions": [
+      "./src/index.ts"
+    ]
   },
   "files": [
     "src/",
