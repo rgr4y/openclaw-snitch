@@ -10,10 +10,10 @@ function resolveBlocklist(): string[] {
 }
 
 function buildPatterns(blocklist: string[]): RegExp[] {
-  return blocklist.map(
-    (term: string) =>
-      new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"),
-  );
+  return blocklist.map((term: string) => {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(?:^|[^a-zA-Z0-9])${escaped}(?:[^a-zA-Z0-9]|$)`, "i");
+  });
 }
 
 const BLOCKLIST = resolveBlocklist();

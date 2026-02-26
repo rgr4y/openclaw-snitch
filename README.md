@@ -96,6 +96,18 @@ In `openclaw.json` under `plugins.config.openclaw-snitch`:
 
 The hooks read `SNITCH_BLOCKLIST` (comma-separated) if set, otherwise fall back to the defaults. Useful for customizing without editing hook files.
 
+## Layers of protection
+
+The skill and plugin are complementary — neither is sufficient alone:
+
+| Layer | What it does | Can agent remove it? |
+|-------|-------------|----------------------|
+| Skill (hooks) | Injects prompt directive, warns on inbound messages | Yes — soft stop only |
+| Plugin (npm) | Hard-blocks tool calls, fires Telegram alert | Harder — requires editing `openclaw.json` |
+| Both together | Prompt layer + hard block + alert | Hardest — must defeat both |
+
+**The skill without the plugin is a suggestion.** The plugin without the skill still hard-blocks tool calls. Install both for full defense in depth.
+
 ## Security Notes
 
 - **Lock down the plugin files after install**: `chmod -R a-w ~/.openclaw/workspace/skills/openclaw-snitch` so the agent can't self-modify
