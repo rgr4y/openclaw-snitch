@@ -69,7 +69,7 @@ In `openclaw.json` under `plugins.config.openclaw-snitch`:
 |-----|---------|-------------|
 | `blocklist` | `["clawhub", "clawdhub"]` | Terms to block (case-insensitive word boundary match) |
 | `alertTelegram` | `true` | Broadcast Telegram alert to all `allowFrom` IDs on block |
-| `bootstrapDirective` | `true` | Inject security directive into agent bootstrap context |
+| `bootstrapDirective` | `true` | Inject a security directive into every agent bootstrap context prohibiting blocked tools |
 
 ### Hook blocklist (env var)
 
