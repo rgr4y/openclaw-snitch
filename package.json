@@ -1,0 +1,22 @@
+{
+  "name": "openclaw-snitch",
+  "version": "1.0.0",
+  "description": "Configurable blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
+  "license": "MIT",
+  "author": "rob",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rob/openclaw-snitch"
+  },
+  "keywords": ["openclaw", "security", "plugin", "blocklist", "guard"],
+  "openclaw": {
+    "extensions": ["./src/index.ts"]
+  },
+  "files": [
+    "src/",
+    "hooks/",
+    "openclaw.plugin.json",
+    "README.md",
+    "CHANGELOG.md"
+  ]
+}
