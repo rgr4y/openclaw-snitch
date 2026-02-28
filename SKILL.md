@@ -1,77 +1,34 @@
 ---
 name: superpack-snitch
-version: 0.0.7
+version: 0.0.8
 description: >
-  Multi-layer blocklist guard for OpenClaw. Hard-blocks tool calls matching banned
-  patterns, injects a security directive at agent bootstrap, warns on incoming
-  messages, and broadcasts Telegram alerts. Blocks clawhub/clawdhub by default.
+  Soft blocklist guard for OpenClaw. Injects a security directive at agent
+  bootstrap and warns on incoming messages referencing blocked terms.
+  Blocks clawhub/clawdhub by default.
 metadata:
   openclaw:
     emoji: "🚨"
     events:
       - agent:bootstrap
       - message:received
-      - before_tool_call
 ---
 
 # superpack-snitch
 
-A configurable blocklist guard for OpenClaw with three enforcement layers:
+Prompt-based blocklist guard for OpenClaw with two enforcement hooks:
 
 1. **Bootstrap directive** — injects a security policy into every agent context
 2. **Message warning** — flags incoming messages referencing blocked terms
-3. **Hard block** — intercepts and kills the tool call + broadcasts a Telegram alert
+
+This is soft enforcement — it tells the agent not to use blocked tools, but
+can't physically stop it. For hard blocking + Telegram alerts, see
+[Want more?](#want-more) below.
 
 ## Install
 
-### Skill only (prompt-injection protection, no npm required)
-
-Install from ClawHub. This gives you the bootstrap directive and message guard
-layers — soft enforcement via prompt injection only.
-
-### Plugin (hard block + hooks + Telegram alerts)
-
-For full enforcement, install via OpenClaw:
-
-```bash
-openclaw plugins install superpack-snitch
-```
-
-The postinstall script automatically:
-- Copies hooks into `$OPENCLAW_CONFIG_DIR/hooks/`
-- Enables them in `openclaw.json` under `hooks.internal.entries`
-
-Lock down the plugin files after install so the agent can't self-modify:
-
-```bash
-chmod -R a-w $OPENCLAW_CONFIG_DIR/extensions/superpack-snitch
-```
-
-The skill and plugin can be used together for layered defense.
+Install from ClawHub. The hooks are included in the skill package.
 
 ## Configuration
-
-In `openclaw.json` under `plugins.config.superpack-snitch`:
-
-```json
-{
-  "plugins": {
-    "config": {
-      "superpack-snitch": {
-        "blocklist": ["clawhub", "clawdhub"],
-        "alertTelegram": true,
-        "bootstrapDirective": true
-      }
-    }
-  }
-}
-```
-
-| Key | Default | Description |
-|-----|---------|-------------|
-| `blocklist` | `["clawhub", "clawdhub"]` | Terms to block (case-insensitive word boundary match) |
-| `alertTelegram` | `true` | Broadcast Telegram alert to all `allowFrom` IDs on block |
-| `bootstrapDirective` | `true` | Inject security directive into every agent bootstrap context |
 
 ### Hook blocklist (env var)
 
@@ -83,10 +40,23 @@ SNITCH_BLOCKLIST=clawhub,clawdhub,myothertool
 
 ## What gets blocked
 
-Blocks fire when the **tool name** or **tool parameters** contain a blocked term. This catches cases where an agent tries to invoke a blocked tool indirectly (e.g. `exec` with `clawhub install` in the args).
+The bootstrap directive instructs the agent to refuse any tool invocation
+matching a blocked term. The message guard flags inbound messages containing
+blocked terms before the agent processes them.
 
-## Security notes
+Default blocked terms: `clawhub`, `clawdhub`
 
-- The hooks in `~/.openclaw/hooks/` load unconditionally — most tamper-resistant layer
-- The plugin layer requires `plugins.allow` — if an agent edits `openclaw.json`, hooks remain active
-- `chown root:root` on the extension dir prevents the agent from self-modifying the plugin
+## Want more?
+
+For hard enforcement (tool call interception, Telegram alerts), install the
+plugin via npm:
+
+```bash
+openclaw plugins install superpack-snitch
+```
+
+The plugin adds a `before_tool_call` layer that physically blocks matching
+tool calls and broadcasts alerts. See the
+[README](https://github.com/rgr4y/superpack-snitch) for full details.
+
+The skill and plugin can be used together for layered defense.

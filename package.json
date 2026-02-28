@@ -1,6 +1,6 @@
 {
   "name": "superpack-snitch",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "BLOCK your agents from ClawHub & Others. Blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",
@@ -12,7 +12,9 @@
   "scripts": {
     "lint": "eslint src hooks --ext .ts",
     "test": "node --experimental-strip-types --test test/snitch.test.ts",
-    "postinstall": "node --experimental-strip-types bin/postinstall.ts"
+    "postinstall": "node --experimental-strip-types bin/postinstall.ts",
+    "build:skill": "rm -rf dist/skill && mkdir -p dist/skill && cp SKILL.md dist/skill/ && cp -r hooks dist/skill/hooks && cd dist/skill && zip -r ../superpack-snitch-skill.zip . && echo '✓ dist/superpack-snitch-skill.zip'",
+    "version": "gsed -i \"s/^version: .*/version: $npm_package_version/\" SKILL.md && git add SKILL.md"
   },
   "bin": {
     "snitch-check": "./bin/snitch-check.ts"
