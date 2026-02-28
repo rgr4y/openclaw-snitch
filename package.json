@@ -1,16 +1,20 @@
 {
-  "name": "openclaw-snitch",
-  "version": "1.0.2",
+  "name": "@superpack/snitch",
+  "version": "v0.0.4",
   "description": "Configurable blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",
   "author": "Rob Vella <me@robvella.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rob/openclaw-snitch"
+    "url": "https://github.com/rgr4y/openclaw-snitch"
   },
   "scripts": {
-    "lint": "eslint src hooks --ext .ts"
+    "lint": "eslint src hooks --ext .ts",
+    "test": "node --experimental-strip-types --test test/snitch.test.ts"
+  },
+  "bin": {
+    "snitch-check": "./bin/snitch-check.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8",
