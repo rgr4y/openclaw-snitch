@@ -1,6 +1,6 @@
 ---
 name: superpack-snitch
-version: 1.0.0
+version: 0.0.7
 description: >
   Multi-layer blocklist guard for OpenClaw. Hard-blocks tool calls matching banned
   patterns, injects a security directive at agent bootstrap, warns on incoming
