@@ -1,4 +1,4 @@
-# openclaw-snitch
+# superpack-snitch
 
 A configurable blocklist guard for [OpenClaw](https://openclaw.ai). Hard-blocks tool calls matching banned patterns, injects a security directive at agent bootstrap, warns on incoming messages, and broadcasts Telegram alerts to all `allowFrom` recipients.
 

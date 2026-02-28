@@ -1,5 +1,5 @@
 {
-  "id": "@superpack/snitch",
+  "id": "superpack-snitch",
   "name": "OpenClaw Snitch",
   "description": "Configurable blocklist guard. Blocks tool calls, injects security directives, and broadcasts Telegram alerts for banned patterns.",
   "configSchema": {

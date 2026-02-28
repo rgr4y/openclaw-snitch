@@ -1,7 +1,7 @@
 {
-  "name": "@superpack/snitch",
-  "version": "v0.0.4",
-  "description": "Configurable blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
+  "name": "superpack-snitch",
+  "version": "0.0.6",
+  "description": "BLOCK your agents from ClawHub & Others. Blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",
   "author": "Rob Vella <me@robvella.com>",
