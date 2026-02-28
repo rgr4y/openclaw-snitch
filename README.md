@@ -56,16 +56,19 @@ Install from ClawHub for soft enforcement via prompt injection only. The skill a
 
 ## Configuration
 
-In `openclaw.json` under `plugins.config.superpack-snitch`:
+In `openclaw.json` under `plugins.entries.superpack-snitch.config`:
 
 ```json
 {
   "plugins": {
-    "config": {
+    "entries": {
       "superpack-snitch": {
-        "blocklist": ["clawhub", "clawdhub", "myothertool"],
-        "alertTelegram": true,
-        "bootstrapDirective": true
+        "enabled": true,
+        "config": {
+          "blocklist": ["clawhub", "clawdhub", "myothertool"],
+          "alertTelegram": true,
+          "bootstrapDirective": true
+        }
       }
     }
   }

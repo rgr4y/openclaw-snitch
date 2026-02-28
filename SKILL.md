@@ -1,6 +1,6 @@
 ---
 name: superpack-snitch
-version: 0.0.8
+version: 0.0.11
 description: >
   Soft blocklist guard for OpenClaw. Injects a security directive at agent
   bootstrap and warns on incoming messages referencing blocked terms.

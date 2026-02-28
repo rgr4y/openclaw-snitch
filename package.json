@@ -1,6 +1,6 @@
 {
   "name": "superpack-snitch",
-  "version": "0.0.8",
+  "version": "0.0.11",
   "description": "BLOCK your agents from ClawHub & Others. Blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",

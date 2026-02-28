@@ -30,7 +30,9 @@ const handler = async (event: { type: string; action: string; context: Record<st
 
   event.context.bootstrapFiles.push({
     name: "SECURITY-SNITCH-BLOCK.md",
+    path: "SECURITY-SNITCH-BLOCK.md",
     content: DIRECTIVE,
+    missing: false,
   });
 };
 

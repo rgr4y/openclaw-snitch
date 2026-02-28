@@ -250,3 +250,53 @@ describe("updateOpenclawConfig", () => {
     assert.equal(cfg.hooks.internal.entries["snitch-message-guard"].enabled, true);
   });
 });
+
+// --- snitch-bootstrap handler ---
+
+describe("snitch-bootstrap handler", () => {
+  it("injects bootstrap file with required path and missing fields", async () => {
+    const handler = (await import("../hooks/snitch-bootstrap/handler.ts")).default;
+    const bootstrapFiles: Array<Record<string, unknown>> = [];
+    const event = {
+      type: "agent",
+      action: "bootstrap",
+      context: { bootstrapFiles },
+    };
+
+    await handler(event);
+
+    assert.equal(bootstrapFiles.length, 1);
+    const file = bootstrapFiles[0];
+    assert.equal(file.name, "SECURITY-SNITCH-BLOCK.md");
+    assert.equal(typeof file.path, "string");
+    assert.ok((file.path as string).length > 0, "path must be non-empty");
+    assert.equal(file.missing, false);
+    assert.equal(typeof file.content, "string");
+    assert.ok((file.content as string).includes("BLOCKED TOOLS"));
+  });
+
+  it("does not inject when event type/action mismatch", async () => {
+    const handler = (await import("../hooks/snitch-bootstrap/handler.ts")).default;
+    const bootstrapFiles: Array<Record<string, unknown>> = [];
+
+    await handler({ type: "agent", action: "other", context: { bootstrapFiles } });
+    assert.equal(bootstrapFiles.length, 0);
+
+    await handler({ type: "message", action: "bootstrap", context: { bootstrapFiles } });
+    assert.equal(bootstrapFiles.length, 0);
+  });
+});
+
+// --- postinstall banner ---
+
+describe("postinstall banner", () => {
+  it("uses plugins.entries schema, not plugins.config", () => {
+    const src = fs.readFileSync(
+      new URL("../bin/postinstall.ts", import.meta.url),
+      "utf8",
+    );
+    assert.ok(!src.includes('"plugins.config.'), 'banner must not reference old plugins.config schema');
+    assert.ok(src.includes('"plugins"'), 'banner should reference plugins key');
+    assert.ok(src.includes('"entries"'), 'banner should use entries schema');
+  });
+});

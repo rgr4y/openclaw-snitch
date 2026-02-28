@@ -104,9 +104,12 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(import.met
 
      {
        "plugins": {
-         "config": {
+         "entries": {
            "superpack-snitch": {
-             "blocklist": ["clawhub", "clawdhub", "your-term-here"]
+             "enabled": true,
+             "config": {
+               "blocklist": ["clawhub", "clawdhub", "your-term-here"]
+             }
            }
          }
        }
