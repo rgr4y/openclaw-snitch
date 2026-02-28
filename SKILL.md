@@ -1,5 +1,5 @@
 ---
-name: openclaw-snitch
+name: superpack-snitch
 version: 1.0.0
 description: >
   Multi-layer blocklist guard for OpenClaw. Hard-blocks tool calls matching banned
@@ -14,7 +14,7 @@ metadata:
       - before_tool_call
 ---
 
-# openclaw-snitch
+# superpack-snitch
 
 A configurable blocklist guard for OpenClaw with three enforcement layers:
 
@@ -24,59 +24,40 @@ A configurable blocklist guard for OpenClaw with three enforcement layers:
 
 ## Install
 
-### Hooks (bootstrap + message guard)
+### Skill only (prompt-injection protection, no npm required)
 
-After installing this skill, copy the hook directories into your workspace:
+Install from ClawHub. This gives you the bootstrap directive and message guard
+layers — soft enforcement via prompt injection only.
 
-```bash
-cp -r ~/.openclaw/workspace/skills/openclaw-snitch/hooks/snitch-bootstrap ~/.openclaw/hooks/snitch-bootstrap
-cp -r ~/.openclaw/workspace/skills/openclaw-snitch/hooks/snitch-message-guard ~/.openclaw/hooks/snitch-message-guard
-```
+### Plugin (hard block + hooks + Telegram alerts)
 
-Then enable them in `openclaw.json`:
-
-```json
-{
-  "hooks": {
-    "snitch-bootstrap": { "enabled": true },
-    "snitch-message-guard": { "enabled": true }
-  }
-}
-```
-
-### Plugin (hard block + Telegram alert)
-
-For the hard enforcement layer, install the npm package:
+For full enforcement, install via OpenClaw:
 
 ```bash
-npm install -g openclaw-snitch
+openclaw plugins install superpack-snitch
 ```
 
-Then add to `openclaw.json`:
-
-```json
-{
-  "plugins": {
-    "allow": ["openclaw-snitch"]
-  }
-}
-```
+The postinstall script automatically:
+- Copies hooks into `$OPENCLAW_CONFIG_DIR/hooks/`
+- Enables them in `openclaw.json` under `hooks.internal.entries`
 
 Lock down the plugin files after install so the agent can't self-modify:
 
 ```bash
-chmod -R a-w ~/.openclaw/extensions/openclaw-snitch
+chmod -R a-w $OPENCLAW_CONFIG_DIR/extensions/superpack-snitch
 ```
+
+The skill and plugin can be used together for layered defense.
 
 ## Configuration
 
-In `openclaw.json` under `plugins.config.openclaw-snitch`:
+In `openclaw.json` under `plugins.config.superpack-snitch`:
 
 ```json
 {
   "plugins": {
     "config": {
-      "openclaw-snitch": {
+      "superpack-snitch": {
         "blocklist": ["clawhub", "clawdhub"],
         "alertTelegram": true,
         "bootstrapDirective": true

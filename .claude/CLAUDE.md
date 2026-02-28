@@ -1,4 +1,4 @@
-# openclaw-snitch
+# superpack-snitch
 
 ## Project Overview
 

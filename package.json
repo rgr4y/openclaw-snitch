@@ -1,17 +1,18 @@
 {
   "name": "superpack-snitch",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "BLOCK your agents from ClawHub & Others. Blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "type": "module",
   "license": "MIT",
   "author": "Rob Vella <me@robvella.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rgr4y/openclaw-snitch"
+    "url": "https://github.com/rgr4y/superpack-snitch"
   },
   "scripts": {
     "lint": "eslint src hooks --ext .ts",
-    "test": "node --experimental-strip-types --test test/snitch.test.ts"
+    "test": "node --experimental-strip-types --test test/snitch.test.ts",
+    "postinstall": "node --experimental-strip-types bin/postinstall.ts"
   },
   "bin": {
     "snitch-check": "./bin/snitch-check.ts"
@@ -36,6 +37,7 @@
   "files": [
     "src/",
     "hooks/",
+    "bin/postinstall.ts",
     "openclaw.plugin.json",
     "README.md",
     "CHANGELOG.md"

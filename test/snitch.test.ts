@@ -1,5 +1,8 @@
-import { describe, it } from "node:test";
+import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
 import {
   buildPatterns,
   matchesBlocklist,
@@ -7,6 +10,7 @@ import {
   resolveConfig,
   DEFAULT_BLOCKLIST,
 } from "../src/lib.ts";
+import { installHooks, updateOpenclawConfig } from "../bin/postinstall.ts";
 
 // --- buildPatterns ---
 
@@ -120,5 +124,129 @@ describe("resolveConfig", () => {
   it("respects bootstrapDirective: false", () => {
     const cfg = resolveConfig({ bootstrapDirective: false });
     assert.equal(cfg.bootstrapDirective, false);
+  });
+});
+
+// --- installHooks ---
+
+describe("installHooks", () => {
+  let tmpDir: string;
+  let srcHooksDir: string;
+  let targetHooksDir: string;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "snitch-test-"));
+    srcHooksDir = path.join(tmpDir, "source-hooks");
+    targetHooksDir = path.join(tmpDir, "target-hooks");
+
+    // Create fake source hook dirs
+    fs.mkdirSync(path.join(srcHooksDir, "snitch-bootstrap"), { recursive: true });
+    fs.writeFileSync(path.join(srcHooksDir, "snitch-bootstrap", "handler.ts"), "// bootstrap");
+    fs.writeFileSync(path.join(srcHooksDir, "snitch-bootstrap", "HOOK.md"), "# Bootstrap");
+
+    fs.mkdirSync(path.join(srcHooksDir, "snitch-message-guard"), { recursive: true });
+    fs.writeFileSync(path.join(srcHooksDir, "snitch-message-guard", "handler.ts"), "// guard");
+    fs.writeFileSync(path.join(srcHooksDir, "snitch-message-guard", "HOOK.md"), "# Guard");
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("copies hook directories to target", () => {
+    const result = installHooks(srcHooksDir, targetHooksDir);
+    assert.equal(result.success, true);
+    assert.ok(fs.existsSync(path.join(targetHooksDir, "snitch-bootstrap", "handler.ts")));
+    assert.ok(fs.existsSync(path.join(targetHooksDir, "snitch-message-guard", "handler.ts")));
+    assert.equal(
+      fs.readFileSync(path.join(targetHooksDir, "snitch-bootstrap", "handler.ts"), "utf8"),
+      "// bootstrap",
+    );
+  });
+
+  it("creates target hooks dir if it doesn't exist", () => {
+    assert.ok(!fs.existsSync(targetHooksDir));
+    installHooks(srcHooksDir, targetHooksDir);
+    assert.ok(fs.existsSync(targetHooksDir));
+  });
+
+  it("overwrites existing hooks on reinstall", () => {
+    fs.mkdirSync(path.join(targetHooksDir, "snitch-bootstrap"), { recursive: true });
+    fs.writeFileSync(path.join(targetHooksDir, "snitch-bootstrap", "handler.ts"), "// old");
+
+    installHooks(srcHooksDir, targetHooksDir);
+    assert.equal(
+      fs.readFileSync(path.join(targetHooksDir, "snitch-bootstrap", "handler.ts"), "utf8"),
+      "// bootstrap",
+    );
+  });
+
+  it("returns installed hook names", () => {
+    const result = installHooks(srcHooksDir, targetHooksDir);
+    assert.deepEqual(result.installed.sort(), ["snitch-bootstrap", "snitch-message-guard"]);
+  });
+
+  it("fails gracefully when source dir missing", () => {
+    const result = installHooks("/nonexistent/hooks", targetHooksDir);
+    assert.equal(result.success, false);
+    assert.ok(result.error);
+  });
+});
+
+// --- updateOpenclawConfig ---
+
+describe("updateOpenclawConfig", () => {
+  let tmpDir: string;
+  let configPath: string;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "snitch-cfg-"));
+    configPath = path.join(tmpDir, "openclaw.json");
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("creates openclaw.json with hooks enabled, no plugins section", () => {
+    updateOpenclawConfig(configPath);
+    assert.ok(fs.existsSync(configPath));
+    const cfg = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    assert.equal(cfg.hooks.internal.enabled, true);
+    assert.equal(cfg.hooks.internal.entries["snitch-bootstrap"].enabled, true);
+    assert.equal(cfg.hooks.internal.entries["snitch-message-guard"].enabled, true);
+    assert.equal(cfg.plugins, undefined);
+  });
+
+  it("merges into existing config without clobbering", () => {
+    fs.writeFileSync(configPath, JSON.stringify({
+      hooks: {
+        internal: {
+          enabled: true,
+          entries: {
+            "my-other-hook": { enabled: true },
+          },
+        },
+      },
+      plugins: {
+        allow: ["some-other-plugin", "telegram"],
+        entries: { telegram: { enabled: true } },
+        installs: { telegram: { source: "npm" } },
+      },
+      somethingElse: 42,
+    }, null, 2));
+
+    updateOpenclawConfig(configPath);
+    const cfg = JSON.parse(fs.readFileSync(configPath, "utf8"));
+
+    // Existing entries preserved
+    assert.equal(cfg.hooks.internal.entries["my-other-hook"].enabled, true);
+    assert.equal(cfg.somethingElse, 42);
+    assert.deepEqual(cfg.plugins.allow, ["some-other-plugin", "telegram"]);
+    assert.equal(cfg.plugins.installs.telegram.source, "npm");
+
+    // New entries added
+    assert.equal(cfg.hooks.internal.entries["snitch-bootstrap"].enabled, true);
+    assert.equal(cfg.hooks.internal.entries["snitch-message-guard"].enabled, true);
   });
 });

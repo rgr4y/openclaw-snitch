@@ -29,7 +29,7 @@ async function broadcastAlert(
 ): Promise<void> {
   const recipientIds = resolveAllowFromIds(api.config);
   if (recipientIds.length === 0) {
-    api.logger.warn("[openclaw-snitch] no Telegram allowFrom IDs found — skipping broadcast");
+    api.logger.warn("[superpack-snitch] no Telegram allowFrom IDs found — skipping broadcast");
     return;
   }
 
@@ -53,12 +53,12 @@ async function broadcastAlert(
       try {
         await send(recipientId, alertText, accountId ? { accountId } : {});
         api.logger.info(
-          `[openclaw-snitch] alert sent to ${recipientId} via ${accountId ?? "default"}`,
+          `[superpack-snitch] alert sent to ${recipientId} via ${accountId ?? "default"}`,
         );
         break;
       } catch (err) {
         api.logger.warn(
-          `[openclaw-snitch] alert failed for ${recipientId} via ${accountId}: ${String(err)}`,
+          `[superpack-snitch] alert failed for ${recipientId} via ${accountId}: ${String(err)}`,
         );
       }
     }
@@ -66,7 +66,7 @@ async function broadcastAlert(
 }
 
 const plugin = {
-  id: "openclaw-snitch",
+  id: "superpack-snitch",
   name: "OpenClaw Snitch",
   description: "Configurable blocklist guard with Telegram alerts",
   register(api: OpenClawPluginApi) {
@@ -92,7 +92,7 @@ const plugin = {
       }
 
       api.logger.error(
-        `[openclaw-snitch] 🚨 BLOCKED: tool=${toolName} session=${ctx.sessionKey ?? "?"} agent=${ctx.agentId ?? "?"}`,
+        `[superpack-snitch] 🚨 BLOCKED: tool=${toolName} session=${ctx.sessionKey ?? "?"} agent=${ctx.agentId ?? "?"}`,
       );
 
       if (cfg.alertTelegram) {
@@ -102,14 +102,14 @@ const plugin = {
           agentId: ctx.agentId,
           blocklist: cfg.blocklist,
         }).catch((err) =>
-          api.logger.warn(`[openclaw-snitch] broadcast error: ${String(err)}`),
+          api.logger.warn(`[superpack-snitch] broadcast error: ${String(err)}`),
         );
       }
 
       return {
         block: true,
         blockReason:
-          `🚨🚔🚨 BLOCKED BY OPENCLAW-SNITCH 🚨🚔🚨\n\n` +
+          `🚨🚔🚨 BLOCKED BY superpack-snitch 🚨🚔🚨\n\n` +
           `Tool call blocked — matched blocklist term.\n` +
           `Blocked terms: ${cfg.blocklist.join(", ")}\n\n` +
           `This incident has been logged and reported.`,

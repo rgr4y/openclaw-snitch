@@ -1,4 +1,4 @@
-# openclaw-snitch — Agent Notes
+# superpack-snitch — Agent Notes
 
 ## Running Tests
 
@@ -8,7 +8,7 @@ Always use the Terminal popup pattern for test runs — opens a window, runs, au
 osascript <<'EOF'
 tell application "Terminal"
   activate
-  set w to do script "cd /Users/rob/workspace/openclaw-snitch && npm test; echo ''; echo '--- done, closing in 30s ---'; sleep 30; osascript -e 'tell application \"Terminal\" to close (every window whose name contains \"snitch\")'"
+  set w to do script "cd /Users/rob/workspace/superpack-snitch && npm test; echo ''; echo '--- done, closing in 30s ---'; sleep 30; osascript -e 'tell application \"Terminal\" to close (every window whose name contains \"snitch\")'"
   set custom title of w to "snitch tests"
 end tell
 EOF
@@ -16,7 +16,7 @@ EOF
 
 Direct (no popup):
 ```bash
-cd /Users/rob/workspace/openclaw-snitch && npm test
+cd ~/workspace/superpack-snitch && npm test
 ```
 
 ## TDD Workflow

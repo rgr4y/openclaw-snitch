@@ -120,7 +120,7 @@ Expected: first two BLOCKED, third ALLOWED.
 **Step 4: Commit**
 
 ```bash
-cd /Users/rob/workspace/openclaw-snitch
+cd /Users/rob/workspace/superpack-snitch
 sleep 1 && git add src/lib.ts test/snitch.test.ts
 git commit -m "fix: treat underscore as word boundary in buildPatterns"
 ```

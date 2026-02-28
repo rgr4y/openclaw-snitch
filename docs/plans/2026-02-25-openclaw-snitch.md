@@ -1,8 +1,8 @@
-# openclaw-snitch Implementation Plan
+# superpack-snitch Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Publish `openclaw-snitch` — a configurable blocklist plugin for OpenClaw that hard-blocks tool calls matching banned patterns, injects a security directive at agent bootstrap, warns on incoming messages, and broadcasts Telegram alerts to all allowFrom recipients.
+**Goal:** Publish `superpack-snitch` — a configurable blocklist plugin for OpenClaw that hard-blocks tool calls matching banned patterns, injects a security directive at agent bootstrap, warns on incoming messages, and broadcasts Telegram alerts to all allowFrom recipients.
 
 **Architecture:** Three-layer defense: (1) automation hook `agent:bootstrap` injects a security directive into every agent context, (2) automation hook `message:received` warns when a banned term appears in an incoming message, (3) plugin `before_tool_call` hard-blocks any tool call whose name or params match the blocklist and fires a Telegram broadcast to all allowFrom IDs. Blocklist is user-configurable with `clawhub`/`clawdhub` as defaults.
 
@@ -17,23 +17,23 @@
 ### Task 1: Scaffold the repo
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/package.json`
-- Create: `~/workspace/openclaw-snitch/openclaw.plugin.json`
-- Create: `~/workspace/openclaw-snitch/.gitignore`
-- Create: `~/workspace/openclaw-snitch/tsconfig.json`
+- Create: `~/workspace/superpack-snitch/package.json`
+- Create: `~/workspace/superpack-snitch/openclaw.plugin.json`
+- Create: `~/workspace/superpack-snitch/.gitignore`
+- Create: `~/workspace/superpack-snitch/tsconfig.json`
 
 **Step 1: Create package.json**
 
 ```json
 {
-  "name": "openclaw-snitch",
+  "name": "superpack-snitch",
   "version": "1.0.0",
   "description": "Configurable blocklist guard for OpenClaw — hard-blocks tool calls, injects security directives, and broadcasts Telegram alerts.",
   "license": "MIT",
   "author": "rob",
   "repository": {
     "type": "git",
-    "url": "https://github.com/rob/openclaw-snitch"
+    "url": "https://github.com/rob/superpack-snitch"
   },
   "keywords": ["openclaw", "security", "plugin", "blocklist", "guard"],
   "openclaw": {
@@ -53,7 +53,7 @@
 
 ```json
 {
-  "id": "openclaw-snitch",
+  "id": "superpack-snitch",
   "name": "OpenClaw Snitch",
   "description": "Configurable blocklist guard. Blocks tool calls, injects security directives, and broadcasts Telegram alerts for banned patterns.",
   "configSchema": {
@@ -103,10 +103,10 @@ dist/
 **Step 5: Init git and commit**
 
 ```bash
-cd ~/workspace/openclaw-snitch
+cd ~/workspace/superpack-snitch
 git init
 git add .
-git commit -m "chore: scaffold openclaw-snitch"
+git commit -m "chore: scaffold superpack-snitch"
 ```
 
 ---
@@ -114,7 +114,7 @@ git commit -m "chore: scaffold openclaw-snitch"
 ### Task 2: Write the plugin (src/index.ts)
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/src/index.ts`
+- Create: `~/workspace/superpack-snitch/src/index.ts`
 
 **Step 1: Write src/index.ts**
 
@@ -167,7 +167,7 @@ async function broadcastAlert(
 ): Promise<void> {
   const recipientIds = resolveAllowFromIds(api.config);
   if (recipientIds.length === 0) {
-    api.logger.warn("[openclaw-snitch] no Telegram allowFrom IDs found — skipping broadcast");
+    api.logger.warn("[superpack-snitch] no Telegram allowFrom IDs found — skipping broadcast");
     return;
   }
 
@@ -190,17 +190,17 @@ async function broadcastAlert(
     for (const accountId of accountIds) {
       try {
         await send(recipientId, alertText, accountId ? { accountId } : {});
-        api.logger.info(`[openclaw-snitch] alert sent to ${recipientId} via ${accountId ?? "default"}`);
+        api.logger.info(`[superpack-snitch] alert sent to ${recipientId} via ${accountId ?? "default"}`);
         break;
       } catch (err) {
-        api.logger.warn(`[openclaw-snitch] alert failed for ${recipientId} via ${accountId}: ${String(err)}`);
+        api.logger.warn(`[superpack-snitch] alert failed for ${recipientId} via ${accountId}: ${String(err)}`);
       }
     }
   }
 }
 
 const plugin = {
-  id: "openclaw-snitch",
+  id: "superpack-snitch",
   name: "OpenClaw Snitch",
   description: "Configurable blocklist guard with Telegram alerts",
   register(api: OpenClawPluginApi) {
@@ -216,7 +216,7 @@ const plugin = {
       }
 
       api.logger.error(
-        `[openclaw-snitch] 🚨 BLOCKED: tool=${toolName} session=${ctx.sessionKey ?? "?"} agent=${ctx.agentId ?? "?"}`,
+        `[superpack-snitch] 🚨 BLOCKED: tool=${toolName} session=${ctx.sessionKey ?? "?"} agent=${ctx.agentId ?? "?"}`,
       );
 
       if (cfg.alertTelegram) {
@@ -225,13 +225,13 @@ const plugin = {
           sessionKey: ctx.sessionKey,
           agentId: ctx.agentId,
           blocklist: cfg.blocklist,
-        }).catch((err) => api.logger.warn(`[openclaw-snitch] broadcast error: ${String(err)}`));
+        }).catch((err) => api.logger.warn(`[superpack-snitch] broadcast error: ${String(err)}`));
       }
 
       return {
         block: true,
         blockReason:
-          `🚨🚔🚨 BLOCKED BY OPENCLAW-SNITCH 🚨🚔🚨\n\n` +
+          `🚨🚔🚨 BLOCKED BY superpack-snitch 🚨🚔🚨\n\n` +
           `Tool call blocked — matched blocklist term.\n` +
           `Blocked terms: ${cfg.blocklist.join(", ")}\n\n` +
           `This incident has been logged and reported.`,
@@ -246,7 +246,7 @@ export default plugin;
 **Step 2: Commit**
 
 ```bash
-cd ~/workspace/openclaw-snitch
+cd ~/workspace/superpack-snitch
 git add src/index.ts
 git commit -m "feat: add plugin with configurable blocklist and Telegram alerts"
 ```
@@ -256,8 +256,8 @@ git commit -m "feat: add plugin with configurable blocklist and Telegram alerts"
 ### Task 3: Write the bootstrap hook
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/hooks/snitch-bootstrap/HOOK.md`
-- Create: `~/workspace/openclaw-snitch/hooks/snitch-bootstrap/handler.ts`
+- Create: `~/workspace/superpack-snitch/hooks/snitch-bootstrap/HOOK.md`
+- Create: `~/workspace/superpack-snitch/hooks/snitch-bootstrap/handler.ts`
 
 **Step 1: Write hooks/snitch-bootstrap/HOOK.md**
 
@@ -326,7 +326,7 @@ export default handler;
 **Step 3: Commit**
 
 ```bash
-cd ~/workspace/openclaw-snitch
+cd ~/workspace/superpack-snitch
 git add hooks/bootstrap/
 git commit -m "feat: add bootstrap hook for security directive injection"
 ```
@@ -336,8 +336,8 @@ git commit -m "feat: add bootstrap hook for security directive injection"
 ### Task 4: Write the message-guard hook
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/hooks/snitch-message-guard/HOOK.md`
-- Create: `~/workspace/openclaw-snitch/hooks/snitch-message-guard/handler.ts`
+- Create: `~/workspace/superpack-snitch/hooks/snitch-message-guard/HOOK.md`
+- Create: `~/workspace/superpack-snitch/hooks/snitch-message-guard/handler.ts`
 
 **Step 1: Write hooks/snitch-message-guard/HOOK.md**
 
@@ -397,7 +397,7 @@ const handler = async (event: {
   if (!PATTERNS.some((re) => re.test(content))) return;
 
   const from = (event.context?.from as string) ?? "unknown";
-  console.warn(`[openclaw-snitch] POLICY VIOLATION: blocked term in message from=${from} channel=${channelId}`);
+  console.warn(`[superpack-snitch] POLICY VIOLATION: blocked term in message from=${from} channel=${channelId}`);
 
   event.messages.push(
     `🚨 **Security policy violation**: This message references a blocked term (${BLOCKLIST.join(", ")}). ` +
@@ -411,7 +411,7 @@ export default handler;
 **Step 3: Commit**
 
 ```bash
-cd ~/workspace/openclaw-snitch
+cd ~/workspace/superpack-snitch
 git add hooks/message-guard/
 git commit -m "feat: add message-guard hook for incoming message warnings"
 ```
@@ -421,20 +421,20 @@ git commit -m "feat: add message-guard hook for incoming message warnings"
 ### Task 5: Write README, CHANGELOG, CONTRIBUTING
 
 **Files:**
-- Create: `~/workspace/openclaw-snitch/README.md`
-- Create: `~/workspace/openclaw-snitch/CHANGELOG.md`
-- Create: `~/workspace/openclaw-snitch/CONTRIBUTING.md`
+- Create: `~/workspace/superpack-snitch/README.md`
+- Create: `~/workspace/superpack-snitch/CHANGELOG.md`
+- Create: `~/workspace/superpack-snitch/CONTRIBUTING.md`
 
 **Step 1: Write README.md**
 
 ````markdown
-# openclaw-snitch
+# superpack-snitch
 
 A configurable blocklist guard for [OpenClaw](https://openclaw.ai). Hard-blocks tool calls matching banned patterns, injects a security directive at agent bootstrap, warns on incoming messages, and broadcasts Telegram alerts to all `allowFrom` recipients.
 
 ## Why
 
-The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `openclaw-snitch` provides a multi-layer defense:
+The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `superpack-snitch` provides a multi-layer defense:
 
 1. **Bootstrap directive** — injected into every agent context, telling the LLM not to invoke blocked tools
 2. **Message warning** — flags incoming messages that reference blocked terms before the agent sees them
@@ -444,7 +444,7 @@ The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that
 ## Install
 
 ```bash
-openclaw plugins install openclaw-snitch
+openclaw plugins install superpack-snitch
 ```
 
 Then add to `openclaw.json`:
@@ -452,7 +452,7 @@ Then add to `openclaw.json`:
 ```json
 {
   "plugins": {
-    "allow": ["openclaw-snitch"]
+    "allow": ["superpack-snitch"]
   }
 }
 ```
@@ -462,8 +462,8 @@ Then add to `openclaw.json`:
 Copy the hook directories into your workspace:
 
 ```bash
-cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/bootstrap ~/.openclaw/hooks/snitch-bootstrap
-cp -r ~/.openclaw/extensions/openclaw-snitch/hooks/message-guard ~/.openclaw/hooks/snitch-message-guard
+cp -r ~/.openclaw/extensions/superpack-snitch/hooks/bootstrap ~/.openclaw/hooks/snitch-bootstrap
+cp -r ~/.openclaw/extensions/superpack-snitch/hooks/message-guard ~/.openclaw/hooks/snitch-message-guard
 ```
 
 Then add to `openclaw.json` hooks config:
@@ -479,13 +479,13 @@ Then add to `openclaw.json` hooks config:
 
 ## Configuration
 
-In `openclaw.json` under `plugins.config.openclaw-snitch`:
+In `openclaw.json` under `plugins.config.superpack-snitch`:
 
 ```json
 {
   "plugins": {
     "config": {
-      "openclaw-snitch": {
+      "superpack-snitch": {
         "blocklist": ["clawhub", "clawdhub", "myothertool"],
         "alertTelegram": true,
         "bootstrapDirective": true
@@ -546,7 +546,7 @@ PRs welcome. Please:
 **Step 4: Commit**
 
 ```bash
-cd ~/workspace/openclaw-snitch
+cd ~/workspace/superpack-snitch
 git add README.md CHANGELOG.md CONTRIBUTING.md
 git commit -m "docs: add README, CHANGELOG, CONTRIBUTING"
 ```
@@ -558,7 +558,7 @@ git commit -m "docs: add README, CHANGELOG, CONTRIBUTING"
 **Step 1: Verify structure**
 
 ```bash
-cd ~/workspace/openclaw-snitch
+cd ~/workspace/superpack-snitch
 find . -not -path './.git/*' | sort
 ```
 
@@ -568,7 +568,7 @@ Expected:
 ./CONTRIBUTING.md
 ./README.md
 ./SKILL.md
-./docs/plans/2026-02-25-openclaw-snitch.md
+./docs/plans/2026-02-25-superpack-snitch.md
 ./hooks/snitch-bootstrap/HOOK.md
 ./hooks/snitch-bootstrap/handler.ts
 ./hooks/snitch-message-guard/HOOK.md

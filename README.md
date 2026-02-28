@@ -25,7 +25,7 @@ The agent tried `edit`, then `browser`, then `gateway`, then `exec` — each att
 
 ## Why
 
-The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `openclaw-snitch` provides a multi-layer defense:
+The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that can exfiltrate credentials, modify your agent config, or backdoor your workspace. `superpack-snitch` provides a multi-layer defense:
 
 1. **Bootstrap directive** — injected into every agent context, telling the LLM not to invoke blocked tools
 2. **Message warning** — flags incoming messages that reference blocked terms before the agent sees them
@@ -34,49 +34,35 @@ The [ClawHub](https://clawhub.ai) skill ecosystem contains malicious skills that
 
 ## Install
 
-```bash
-openclaw plugins install openclaw-snitch
-```
-
-Then add to `openclaw.json`:
-
-```json
-{
-  "plugins": {
-    "allow": ["openclaw-snitch"]
-  }
-}
-```
-
-### Hooks (optional but recommended)
-
-Copy the hook directories into your workspace:
+### Plugin (full enforcement)
 
 ```bash
-cp -r ~/.openclaw/workspace/skills/openclaw-snitch/hooks/snitch-bootstrap ~/.openclaw/hooks/snitch-bootstrap
-cp -r ~/.openclaw/workspace/skills/openclaw-snitch/hooks/snitch-message-guard ~/.openclaw/hooks/snitch-message-guard
+openclaw plugins install superpack-snitch
 ```
 
-Then add to `openclaw.json` hooks config:
+The postinstall script automatically:
+- Copies hooks into `$OPENCLAW_CONFIG_DIR/hooks/`
+- Enables them in `openclaw.json` under `hooks.internal.entries`
 
-```json
-{
-  "hooks": {
-    "snitch-bootstrap": { "enabled": true },
-    "snitch-message-guard": { "enabled": true }
-  }
-}
+Lock down the plugin files so the agent can't self-modify:
+
+```bash
+chmod -R a-w $OPENCLAW_CONFIG_DIR/extensions/superpack-snitch
 ```
+
+### Skill only (prompt-injection protection, no npm required)
+
+Install from ClawHub for soft enforcement via prompt injection only. The skill and plugin can be used together for layered defense.
 
 ## Configuration
 
-In `openclaw.json` under `plugins.config.openclaw-snitch`:
+In `openclaw.json` under `plugins.config.superpack-snitch`:
 
 ```json
 {
   "plugins": {
     "config": {
-      "openclaw-snitch": {
+      "superpack-snitch": {
         "blocklist": ["clawhub", "clawdhub", "myothertool"],
         "alertTelegram": true,
         "bootstrapDirective": true
@@ -110,8 +96,8 @@ The skill and plugin are complementary — neither is sufficient alone:
 
 ## Security Notes
 
-- **Lock down the plugin files after install**: `chmod -R a-w ~/.openclaw/workspace/skills/openclaw-snitch` so the agent can't self-modify
-- **The bootstrap and message hooks are the most tamper-resistant layers** — they live in `~/.openclaw/hooks/` which loads unconditionally without a trust model
+- **Lock down the plugin files after install**: `chmod -R a-w $OPENCLAW_CONFIG_DIR/extensions/superpack-snitch` so the agent can't self-modify
+- **The bootstrap and message hooks are the most tamper-resistant layers** — they live in `$OPENCLAW_CONFIG_DIR/hooks/` which loads unconditionally without a trust model
 - The plugin layer requires `plugins.allow` — if an agent edits `openclaw.json` and removes it, the hooks remain active as a fallback
 
 ## License

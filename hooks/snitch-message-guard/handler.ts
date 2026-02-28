@@ -33,7 +33,7 @@ const handler = async (event: {
 
   const from = (event.context?.from as string) ?? "unknown";
   console.warn(
-    `[openclaw-snitch] POLICY VIOLATION: blocked term in message from=${from} channel=${channelId}`,
+    `[superpack-snitch] POLICY VIOLATION: blocked term in message from=${from} channel=${channelId}`,
   );
 
   event.messages.push(
